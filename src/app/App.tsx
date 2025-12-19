@@ -14,6 +14,8 @@ import { EditRecordDialog } from "./components/edit-record-dialog";
 import { ThemeProvider } from "./context/theme-context";
 import { AuthPage } from "./components/auth-page";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useAutoRefreshToken } from "../utils/token-refresher";
+
 
 // Данные автомобилей для примера
 const initialCars: Car[] = [
@@ -147,6 +149,13 @@ const mockHistory: HistoryRecord[] = [
 ];
 
 export default function App() {
+
+  const tokens = useAutoRefreshToken();
+
+  useEffect(() => {
+    console.log("Текущие токены обновились:", tokens);
+  }, [tokens]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [records, setRecords] = useState<HistoryRecord[]>(mockHistory);
   const [activeTab, setActiveTab] = useState<NavTab>('history');

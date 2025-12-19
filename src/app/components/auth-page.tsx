@@ -4,12 +4,16 @@ import { Car, Eye, EyeOff } from "lucide-react";
 import { login, register, sendRegCode, registerUser } from "../../api/auth";
 import "../../css/auth-page.css";
 import { useState, useEffect } from "react";
+import { useAutoRefreshToken } from "../../utils/token-refresher";
+
+
 
 interface AuthPageProps {
   onLogin: (email: string, password: string, name?: string) => void;
 }
 
 export function AuthPage({ onLogin, onChangePassword }: AuthPageProps) {
+    const { tokens, setTokens } = useAutoRefreshToken();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -107,18 +111,39 @@ const handleSubmit = async (e: React.FormEvent) => {
         setErrorMessage("Неверный логин или пароль");
         return;
       }
-      if (result.access_token) localStorage.setItem("token", result.access_token);
+
+      setTokens({
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+      });
+
+
+      console.log("Токены после входа:", {
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+      });
+
       onLogin(email, password);
+
     } else {
-      // регистрация с кодом подтверждения
       const result = await registerUser(email, password, Number(verificationCode), name);
       if (!result) {
         setErrorMessage("Ошибка регистрации");
         return;
       }
+
       if (result.access_token) localStorage.setItem("token", result.access_token);
+      if (result.refresh_token) localStorage.setItem("refresh_token", result.refresh_token);
+
+      console.log("Токены после регистрации:", {
+        access_token: result.access_token,
+        refresh_token: result.refresh_token,
+      });
+
       onLogin(email, password, name);
     }
+
+
   } catch (err: any) {
     setErrorMessage(err.message || "Ошибка при запросе к серверу");
   }
