@@ -163,109 +163,108 @@ export function Settings({
 
   return (
     <>
-      <div className="flex-1 min-h-screen bg-secondary/30">
-        <div className="overflow-y-auto pb-24">
-            {/* Профиль */}
-            <div className="px-4 pt-8 pb-6">
-              <div className="flex flex-col items-center text-center">
-                <div className="relative mb-4">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-                    <User className="w-12 h-12 text-primary" />
-                  </div>
-                  <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                    <Camera className="w-4 h-4" />
-                  </button>
-                </div>
-                <h2 className="text-xl mb-1">{userName}</h2>
-                <p className="text-sm text-muted-foreground mb-1">{userPhone}</p>
-                <p className="text-sm text-muted-foreground">{userEmail}</p>
+      <div className="flex-1 overflow-y-auto pb-2 bg-secondary/30">
+        {/* Профиль */}
+        <div className="px-4 pt-8 pb-6">
+          <div className="flex flex-col items-center text-center">
+            <div className="relative mb-4">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+                <User className="w-12 h-12 text-primary" />
               </div>
+              <button className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+                <Camera className="w-4 h-4" />
+              </button>
             </div>
-
-            {/* Настройки */}
-            <div className="px-4 space-y-3">
-              <SettingsSection>
-                <SettingsItem
-                  icon={<User className="w-[18px] h-[18px]" />}
-                  iconBg="bg-blue-500/10"
-                  iconColor="text-blue-500"
-                  title="Профиль"
-                  subtitle="Изменить имя и фото"
-                  onClick={() => console.log('Профиль')}
-                />
-                <SettingsItem
-                  icon={<Bell className="w-[18px] h-[18px]" />}
-                  iconBg="bg-red-500/10"
-                  iconColor="text-red-500"
-                  title="Уведомления"
-                  subtitle="Настройки уведомлений"
-                  onClick={() => console.log('Уведомления')}
-                />
-                <SettingsItem
-                  icon={<Lock className="w-[18px] h-[18px]" />}
-                  iconBg="bg-yellow-500/10"
-                  iconColor="text-yellow-600"
-                  title="Конфиденциальность"
-                  subtitle="Безопасность и данные"
-                  onClick={() => console.log('Конфиденциальность')}
-                />
-              </SettingsSection>
-
-              <SettingsSection>
-                <SettingsItem
-                  icon={<Database className="w-[18px] h-[18px]" />}
-                  iconBg="bg-green-500/10"
-                  iconColor="text-green-600"
-                  title="Данные и хранилище"
-                  subtitle="Использование памяти"
-                  onClick={() => console.log('Данные')}
-                />
-                <SettingsItem
-                  icon={<Palette className="w-[18px] h-[18px]" />}
-                  iconBg="bg-purple-500/10"
-                  iconColor="text-purple-600"
-                  title="Внешний вид"
-                  subtitle={getThemeLabel()}
-                  onClick={() => setIsThemeDialogOpen(true)}
-                />
-                <SettingsItem
-                  icon={<Globe className="w-[18px] h-[18px]" />}
-                  iconBg="bg-cyan-500/10"
-                  iconColor="text-cyan-600"
-                  title="Язык"
-                  subtitle="Русский"
-                  onClick={() => console.log('Язык')}
-                />
-              </SettingsSection>
-
-              <SettingsSection>
-                <SettingsItem
-                  icon={<Info className="w-[18px] h-[18px]" />}
-                  iconBg="bg-gray-500/10"
-                  iconColor="text-gray-600"
-                  title="О приложении"
-                  subtitle="Версия 1.0.0"
-                  onClick={() => console.log('О приложении')}
-                />
-              </SettingsSection>
-
-              <SettingsSection className="mb-4">
-                <SettingsItem
-                  icon={<LogOut className="w-[18px] h-[18px]" />}
-                  iconBg="bg-red-500/10"
-                  iconColor="text-red-600"
-                  title="Выйти"
-                  onClick={onLogout}
-                  danger
-                />
-              </SettingsSection>
-            </div>
+            <h2 className="text-xl mb-1">{userName}</h2>
+            <p className="text-sm text-muted-foreground mb-1">{userPhone}</p>
+            <p className="text-sm text-muted-foreground">{userEmail}</p>
           </div>
-         </div>
-          <ThemeDialog
-            isOpen={isThemeDialogOpen}
-            onClose={() => setIsThemeDialogOpen(false)}
-          />
-        </>
-      );
-    }
+        </div>
+
+        {/* Настройки */}
+        <div className="px-4 space-y-3">
+          <SettingsSection>
+            <SettingsItem
+              icon={<User className="w-[18px] h-[18px]" />}
+              iconBg="bg-blue-500/10"
+              iconColor="text-blue-500"
+              title="Профиль"
+              subtitle="Изменить имя и фото"
+              onClick={() => console.log('Профиль')}
+            />
+            <SettingsItem
+              icon={<Bell className="w-[18px] h-[18px]" />}
+              iconBg="bg-red-500/10"
+              iconColor="text-red-500"
+              title="Уведомления"
+              subtitle="Настройки уведомлений"
+              onClick={() => console.log('Уведомления')}
+            />
+            <SettingsItem
+              icon={<Lock className="w-[18px] h-[18px]" />}
+              iconBg="bg-yellow-500/10"
+              iconColor="text-yellow-600"
+              title="Конфиденциальность"
+              subtitle="Безопасность и данные"
+              onClick={() => console.log('Конфиденциальность')}
+            />
+          </SettingsSection>
+
+          <SettingsSection>
+            <SettingsItem
+              icon={<Database className="w-[18px] h-[18px]" />}
+              iconBg="bg-green-500/10"
+              iconColor="text-green-600"
+              title="Данные и хранилище"
+              subtitle="Использование памяти"
+              onClick={() => console.log('Данные')}
+            />
+            <SettingsItem
+              icon={<Palette className="w-[18px] h-[18px]" />}
+              iconBg="bg-purple-500/10"
+              iconColor="text-purple-600"
+              title="Внешний вид"
+              subtitle={getThemeLabel()}
+              onClick={() => setIsThemeDialogOpen(true)}
+            />
+            <SettingsItem
+              icon={<Globe className="w-[18px] h-[18px]" />}
+              iconBg="bg-cyan-500/10"
+              iconColor="text-cyan-600"
+              title="Язык"
+              subtitle="Русский"
+              onClick={() => console.log('Язык')}
+            />
+          </SettingsSection>
+
+          <SettingsSection>
+            <SettingsItem
+              icon={<Info className="w-[18px] h-[18px]" />}
+              iconBg="bg-gray-500/10"
+              iconColor="text-gray-600"
+              title="О приложении"
+              subtitle="Версия 1.0.0"
+              onClick={() => console.log('О приложении')}
+            />
+          </SettingsSection>
+
+          <SettingsSection className="mb-4">
+            <SettingsItem
+              icon={<LogOut className="w-[18px] h-[18px]" />}
+              iconBg="bg-red-500/10"
+              iconColor="text-red-600"
+              title="Выйти"
+              onClick={onLogout}
+              danger
+            />
+          </SettingsSection>
+        </div>
+      </div>
+
+      <ThemeDialog 
+        isOpen={isThemeDialogOpen} 
+        onClose={() => setIsThemeDialogOpen(false)} 
+      />
+    </>
+  );
+}

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Eye, EyeOff, Car } from "lucide-react";
 import API from "../../api/config";
-
+import { sendChangePasswordCode, changePassword } from "../../api/auth";
+import "../../css/auth-page.css";
 
 const useShakeInput = (
   value: string,

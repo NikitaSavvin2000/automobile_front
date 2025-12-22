@@ -10,6 +10,12 @@ const API_ENDPOINTS = {
         change_code: `${BASE_URL}/register/send_change_code`,
         change_password: `${BASE_URL}/register/change_password`,
     },
+    cars: {
+        create: `${BASE_URL}/cars/create`,
+        list: `${BASE_URL}/cars/list`,
+        update: (id) => `${BASE_URL}/cars/update/${id}`,
+        delete: (id) => `${BASE_URL}/cars/delete/${id}`,
+    },
     users: {
         list: `${BASE_URL}/users/`,
         detail: (id) => `${BASE_URL}/users/${id}/`,

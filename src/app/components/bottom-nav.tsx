@@ -35,8 +35,8 @@ export function BottomNav({ tabs, activeTab, onTabChange }: BottomNavProps) {
   const items = tabs || navItems;
   
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-[410px]">
-        <nav className="bg-white/30 dark:bg-card/30 backdrop-blur-md border border-border/20 rounded-full shadow-lg px-2 py-1.5">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-[380px]">
+      <nav className="bg-white/60 dark:bg-card/60 backdrop-blur-2xl border border-border/30 rounded-full shadow-lg px-2 py-1.5">
         <div className="flex items-center justify-around gap-1">
           {items.map((tab) => (
             <button

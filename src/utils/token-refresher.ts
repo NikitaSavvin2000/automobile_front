@@ -1,80 +1,92 @@
-import { useState, useEffect, useRef } from "react";
-import { refreshToken } from "../api/refresh_token";
+import { useState, useEffect, useCallback } from 'react';
+import { refreshToken } from '../api/refresh_token';
 
-const REFRESH_INTERVAL = Number(import.meta.env.VITE_REFRESH_INTERVAL) || 7;
+interface Tokens {
+  access_token: string;
+  refresh_token: string;
+}
 
 export function useAutoRefreshToken() {
-  const [tokens, setTokens] = useState<{
-    access_token: string | null;
-    refresh_token: string | null;
-  }>(() => {
-    const savedAccessToken = localStorage.getItem("token");
-    const savedRefreshToken = localStorage.getItem("refresh_token");
+  const [tokens, setTokens] = useState<Tokens>(() => {
+    // Инициализируем токены из localStorage при создании
+    const savedAccessToken = localStorage.getItem('token');
+    const savedRefreshToken = localStorage.getItem('refresh_token');
+    
     return {
-      access_token: savedAccessToken || null,
-      refresh_token: savedRefreshToken || null,
+      access_token: savedAccessToken || '',
+      refresh_token: savedRefreshToken || '',
     };
   });
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const tokensRef = useRef(tokens);
-
-  // Сохраняем актуальные токены в ref
-  useEffect(() => {
-    tokensRef.current = tokens;
-  }, [tokens]);
-
-  useEffect(() => {
-    const refresh_token = tokensRef.current.refresh_token;
-    if (!refresh_token) {
+  const handleRefreshToken = useCallback(async () => {
+    const currentRefreshToken = localStorage.getItem('refresh_token');
+    
+    if (!currentRefreshToken || isRefreshing) {
       return;
     }
 
-    const interval = setInterval(async () => {
-      const currentRefreshToken = tokensRef.current.refresh_token;
-      if (!currentRefreshToken) {
-        return;
-      }
+    setIsRefreshing(true);
 
-      try {
-        const data = await refreshToken(currentRefreshToken);
-        if (data && (data.access_token || data.refresh_token)) {
-          setTokens({
-            access_token: data.access_token || tokensRef.current.access_token,
-            refresh_token: data.refresh_token || tokensRef.current.refresh_token,
-          });
-          console.log("Токены обновлены успешно");
-        } else {
-          console.warn("Обновление токена вернуло пустой ответ, сохраняем текущие токены");
-        }
-      } catch (err: any) {
-        console.error("Ошибка обновления токена:", err);
-        if (err instanceof Error) {
-          const status = (err as any).status;
-          if (err.message.includes("Failed to fetch")) {
-            console.warn("Сеть недоступна, повторная попытка при следующем обновлении");
-          } else if (
-            status === 401 ||
-            status === 403 ||
-            err.message.toLowerCase().includes("invalid") ||
-            err.message.toLowerCase().includes("expired") ||
-            err.message.toLowerCase().includes("unauthorized")
-          ) {
-            console.error("Refresh token невалидный или истек, требуется повторный вход");
-            setTokens({ access_token: null, refresh_token: null });
-          } else {
-            console.warn(
-              "Ошибка обновления токена (статус:",
-              status,
-              "), но сохраняем текущие токены:",
-              err.message
-            );
-          }
-        }
+    try {
+      console.log('Обновление токенов...');
+      const newTokens = await refreshToken(currentRefreshToken);
+      
+      if (newTokens?.access_token) {
+        setTokens({
+          access_token: newTokens.access_token,
+          refresh_token: newTokens.refresh_token || currentRefreshToken,
+        });
+        console.log('Токены успешно обновлены');
       }
-    }, REFRESH_INTERVAL * 1000);
+    } catch (error) {
+      console.error('Ошибка обновления токена:', error);
+      // Если не удалось обновить токен, очищаем все
+      localStorage.removeItem('token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('userEmail');
+      setTokens({
+        access_token: '',
+        refresh_token: '',
+      });
+      // Перезагружаем страницу для возврата на экран логина
+      window.location.reload();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing]);
+
+  // Автоматическое обновление токена по интервалу из .env
+  useEffect(() => {
+    const refreshInterval = Number(import.meta.env.VITE_REFRESH_INTERVAL) || 300; // По умолчанию 300 секунд (5 минут)
+    const intervalMs = refreshInterval * 1000;
+
+    const interval = setInterval(() => {
+      const refreshTokenValue = localStorage.getItem('refresh_token');
+      const accessTokenValue = localStorage.getItem('token');
+      
+      if (refreshTokenValue && accessTokenValue) {
+        handleRefreshToken();
+      }
+    }, intervalMs);
 
     return () => clearInterval(interval);
-  }, [tokens.refresh_token]);
+  }, [handleRefreshToken]);
 
-  return { tokens, setTokens };
+  // Обновляем токены сразу после логина (через 5 секунд для стабилизации)
+  useEffect(() => {
+    if (tokens.access_token && tokens.refresh_token && !isRefreshing) {
+      const timer = setTimeout(() => {
+        handleRefreshToken();
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [tokens.access_token, tokens.refresh_token, handleRefreshToken, isRefreshing]);
+
+  return {
+    tokens,
+    setTokens,
+    refreshToken: handleRefreshToken,
+  };
 }

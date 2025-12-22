@@ -1,7 +1,5 @@
-import { useNavigate } from "react-router-dom";
-
 import { Car, Eye, EyeOff } from "lucide-react";
-import { login, register, sendRegCode, registerUser } from "../../api/auth";
+import { login, sendRegCode, registerUser } from "../../api/auth";
 import "../../css/auth-page.css";
 import { useState, useEffect } from "react";
 
@@ -18,7 +16,6 @@ export function AuthPage({ onLogin, onChangePassword, setTokens }: AuthPageProps
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
-  const [shake, setShake] = useState(false);
   const [errors, setErrors] = useState<{
     email?: boolean;
     password?: boolean;
@@ -26,35 +23,25 @@ export function AuthPage({ onLogin, onChangePassword, setTokens }: AuthPageProps
     code?: boolean;
   }>({});
   const [password, setPassword] = useState("");
-  const [errorFields, setErrorFields] = useState<{
-    email?: boolean;
-    password?: boolean;
-    name?: boolean;
-    code?: boolean;
-  }>({});
-  const [codeError, setCodeError] = useState(false);
-  const navigate = useNavigate();
+  
   const triggerError = (fields: typeof errors) => {
-    setErrors(fields); // передаем в хук
-    setShake(true);
-    setTimeout(() => setShake(false), 400);
+    setErrors(fields);
   };
 
   const useShakeInput = (
     value: string,
     setValue: (v: string) => void,
     triggerError: boolean,
-    resetError: () => void // функция сброса ошибки
+    resetError: () => void
   ) => {
     const [shake, setShake] = useState(false);
-    const navigate = useNavigate();
 
     useEffect(() => {
       if (triggerError) {
         setShake(true);
         const timer = setTimeout(() => {
           setShake(false);
-          resetError(); // сбрасываем ошибку после тряски
+          resetError();
         }, 500);
         return () => clearTimeout(timer);
       }
@@ -102,11 +89,9 @@ export function AuthPage({ onLogin, onChangePassword, setTokens }: AuthPageProps
     const hasError = Object.values(newErrors).some(Boolean);
     if (hasError) {
       setErrors(newErrors);
-      setErrorFields(newErrors);
       return;
     }
 
-    setErrorFields({});
     setErrors({});
 
     try {
@@ -173,7 +158,6 @@ export function AuthPage({ onLogin, onChangePassword, setTokens }: AuthPageProps
               setIsLogin(true);
               setErrorMessage("");
               setErrors({});
-              setErrorFields({});
             }}
             className={`flex-1 py-2.5 rounded-xl transition-all ${
               isLogin
@@ -215,7 +199,11 @@ export function AuthPage({ onLogin, onChangePassword, setTokens }: AuthPageProps
           <div>
             <label className="block text-sm text-muted-foreground mb-2">Пароль</label>
             <div className="relative">
-              <input {...passwordInputProps} placeholder="Введите пароль" />
+              <input 
+                {...passwordInputProps} 
+                type={showPassword ? "text" : "password"}
+                placeholder="Введите пароль" 
+              />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
@@ -245,7 +233,7 @@ export function AuthPage({ onLogin, onChangePassword, setTokens }: AuthPageProps
                     alert("Код отправлен на ваш Email");
                     setErrorMessage("");
                   } catch (err: any) {
-                    setErrorMessage(err.message); // выводим ошибку из бэкенда
+                    setErrorMessage(err.message); // выв��дим ошибку из бэкенда
                   }
                 }}
                 className="w-full py-3.5 bg-yellow-200 text-yellow-900 rounded-xl hover:bg-yellow-300 transition-colors shadow-sm"

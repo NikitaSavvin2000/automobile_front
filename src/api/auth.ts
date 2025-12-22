@@ -7,7 +7,7 @@ export async function login(email, password) {
             body: JSON.stringify({ email, password }),
         });
 
-        const data = await res.json(); // читаем один раз
+        const data = await res.json();
 
         if (!res.ok) {
             throw new Error(data.detail || "Ошибка при входе");
@@ -15,6 +15,10 @@ export async function login(email, password) {
 
         if (data.access_token) {
             localStorage.setItem("token", data.access_token);
+        }
+        
+        if (data.refresh_token) {
+            localStorage.setItem("refresh_token", data.refresh_token);
         }
 
         return data;
@@ -89,6 +93,10 @@ export const registerUser = async (email: string, password: string, verify_code:
     if (data.access_token) {
       localStorage.setItem("token", data.access_token);
     }
+    
+    if (data.refresh_token) {
+      localStorage.setItem("refresh_token", data.refresh_token);
+    }
 
     return data;
   } catch (err: any) {
@@ -137,4 +145,20 @@ export const changePassword = async (
   }
 
   return data;
+};
+
+export const authApi = {
+  login: async (email: string, password: string) => {
+    return await login(email, password);
+  },
+
+  register: async (email: string, password: string, name: string) => {
+    return await registerUser(email, password, Number(name));
+  },
+
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('userEmail');
+  },
 };
