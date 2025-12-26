@@ -65,7 +65,7 @@ export function CarManagementHeader({
             {/* Низ: Данные автомобиля - по центру */}
             <div className="w-full text-center">
               <div className="relative flex items-center justify-center mb-0.5">
-                <h2 className="text-3xl font-semibold tracking-tight">
+                <h2 className="text-[36px] font-semibold tracking-tight">
                   {selectedCar.brand} {selectedCar.model}
                 </h2>
                 {/* Значок в absolute, чтобы не смещал текст */}
@@ -85,16 +85,18 @@ export function CarManagementHeader({
 
         {/* Подблок 2: Пробег */}
         <div className="px-5 py-3 relative">
-          <div className="text-center">
-            <p className="text-[10px] text-muted-foreground/70 mb-1.5 uppercase tracking-widest font-semibold">
-              Пробег
-            </p>
-            <div className="flex items-center justify-center gap-2">
-              <p className="text-3xl font-bold tracking-tight">
-                {Number(selectedCar.mileage).toLocaleString()}
-              </p>
-              <span className="text-base text-muted-foreground/70 font-medium">км</span>
-            </div>
+          <p className="text-[10px] text-muted-foreground/70 mb-1.5 uppercase tracking-widest font-semibold text-center">
+            Пробег
+          </p>
+          <div className="relative w-full">
+            <span className="absolute left-1/2 -translate-x-1/2 text-3xl font-bold tracking-tight">
+              {Number(selectedCar.mileage).toLocaleString()}
+            </span>
+            <span className="absolute left-1/2 text-base text-muted-foreground/70 font-medium" style={{ transform: `translateX(${Number(selectedCar.mileage).toLocaleString().length * 10.8}px)` }}>
+              км
+            </span>
+            {/* Invisible placeholder для высоты */}
+            <div className="invisible text-3xl font-bold">0</div>
           </div>
           
           {/* Кнопка редактирования - только иконка */}

@@ -1,3 +1,4 @@
+// @ts-ignore
 import API from "./config";
 
 export async function refreshToken(refreshToken: string) {

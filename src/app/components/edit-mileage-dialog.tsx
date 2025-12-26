@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+import "../../css/auth-page.css";
 
 interface EditMileageDialogProps {
   isOpen: boolean;
@@ -10,15 +9,60 @@ interface EditMileageDialogProps {
   onSave: (mileage: string) => void;
 }
 
+const useShakeInput = (
+  value: string,
+  setValue: (v: string) => void,
+  triggerError: boolean,
+  resetError: () => void
+) => {
+  const [shake, setShake] = useState(false);
+
+  useEffect(() => {
+    if (triggerError) {
+      setShake(true);
+      const timer = setTimeout(() => {
+        setShake(false);
+        resetError();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [triggerError, resetError]);
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value);
+
+  const className = `w-full px-4 py-3 bg-secondary rounded-xl border-0 outline-none focus:ring-2 transition-all duration-300 ${
+    triggerError || shake ? "ring-2 ring-red-400 shake" : "focus:ring-primary/20"
+  }`;
+
+  return { value, onChange, className };
+};
+
 export function EditMileageDialog({ isOpen, currentMileage, onClose, onSave }: EditMileageDialogProps) {
   const [mileage, setMileage] = useState(currentMileage);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMileage(currentMileage);
+      setError(false);
+    }
+  }, [isOpen, currentMileage]);
+
+  const mileageInputProps = useShakeInput(
+    mileage,
+    setMileage,
+    error,
+    () => setError(false)
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (mileage) {
-      onSave(mileage);
-      onClose();
+    if (!mileage.trim()) {
+      setError(true);
+      return;
     }
+    onSave(mileage);
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -36,15 +80,16 @@ export function EditMileageDialog({ isOpen, currentMileage, onClose, onSave }: E
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="mileage">Пробег (км)</Label>
-            <Input
+            <label htmlFor="mileage" className="block text-sm font-medium">
+              Пробег (км) *
+            </label>
+            <input
               id="mileage"
-              type="number"
+              type="text"
               placeholder="50000"
-              value={mileage}
-              onChange={(e) => setMileage(e.target.value)}
-              required
+              autoComplete="off"
               autoFocus
+              {...mileageInputProps}
             />
           </div>
 
@@ -52,13 +97,13 @@ export function EditMileageDialog({ isOpen, currentMileage, onClose, onSave }: E
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-secondary text-foreground rounded-lg hover:bg-muted transition-colors"
+              className="flex-1 px-4 py-3 bg-secondary text-foreground rounded-xl hover:bg-muted transition-colors"
             >
               Отмена
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+              className="flex-1 px-4 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
             >
               Сохранить
             </button>

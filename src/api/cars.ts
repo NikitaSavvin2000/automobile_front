@@ -1,3 +1,4 @@
+// @ts-ignore
 import API from "./config";
 
 export async function createCar(brand, model, year, mileage, color) {
@@ -59,8 +60,16 @@ export async function getCars() {
         }
 
         console.log("Список автомобилей получен", data);
+        
+        // Преобразуем ID в строку для единообразия
+        const carsWithStringIds = data.cars?.map(car => ({
+            ...car,
+            id: String(car.id)
+        }));
+        
+        console.log("Автомобили с преобразованными ID:", carsWithStringIds);
 
-        return data.cars;
+        return carsWithStringIds || data.cars;
     } catch (error) {
         console.error("Исключение при получении автомобилей", error);
         alert(error.message);

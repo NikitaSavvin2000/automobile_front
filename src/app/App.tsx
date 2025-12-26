@@ -3,6 +3,8 @@ import { useAuth, useCars, useRecords } from './hooks';
 import { useAutoRefreshToken } from '../utils/token-refresher';
 import { AuthPageWrapper, MainPage } from './pages';
 import { useEffect } from 'react';
+import { getCarRecordInfo } from '../api/cars-records';
+import { transformRecordData } from './hooks/use-records';
 
 export default function App() {
   const { tokens, setTokens } = useAutoRefreshToken();
@@ -23,7 +25,15 @@ export default function App() {
     setSelectedRecord,
     handleAddRecord,
     handleEditRecord,
-  } = useRecords();
+    handleDeleteRecord,
+    handleDeleteRecordImage,
+  } = useRecords(selectedCar?.id || null);
+
+  // Логируем selectedCar для отладки
+  useEffect(() => {
+    console.log('🎯 Текущий выбранный автомобиль:', selectedCar);
+    console.log('🎯 ID выбранного автомобиля:', selectedCar?.id, 'тип:', typeof selectedCar?.id);
+  }, [selectedCar]);
 
   // Загружаем данные после успешного логина
   useEffect(() => {
@@ -33,6 +43,20 @@ export default function App() {
       refreshCars();
     }
   }, [isAuthenticated, isInitialized]);
+
+  // Обертка для удаления изображения с обновлением selectedRecord
+  const handleDeleteRecordImageWithUpdate = async (recordId: string, imageId: string): Promise<boolean> => {
+    const success = await handleDeleteRecordImage(recordId, imageId);
+    if (success && selectedCar?.id && selectedRecord?.id) {
+      // Загружаем обновленную запись из бэкенда
+      const apiData = await getCarRecordInfo(selectedCar.id, selectedRecord.id);
+      if (apiData) {
+        const updatedRecord = transformRecordData(apiData);
+        setSelectedRecord(updatedRecord);
+      }
+    }
+    return success;
+  };
 
   // Показываем загрузку пока не инициализирована авторизация
   if (!isInitialized) {
@@ -73,6 +97,8 @@ export default function App() {
         onEditRecord={handleEditRecord}
         selectedRecord={selectedRecord}
         onSelectRecord={setSelectedRecord}
+        onDeleteRecord={handleDeleteRecord}
+        onDeleteRecordImage={handleDeleteRecordImageWithUpdate}
       />
     </ThemeProvider>
   );

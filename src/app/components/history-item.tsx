@@ -1,5 +1,10 @@
 import { Wrench, Package, ClipboardCheck, AlertCircle } from "lucide-react";
 
+export interface ImageData {
+  id: string;
+  url: string;
+}
+
 export interface HistoryRecord {
   id: string;
   type: 'maintenance' | 'repair' | 'parts' | 'inspection';
@@ -10,7 +15,8 @@ export interface HistoryRecord {
   mileage?: string;
   serviceLocation?: string;
   cost?: string;
-  photos?: string[];
+  photos?: string[]; // URLs для обратной совместимости и простого отображения
+  images?: ImageData[]; // Полные данные изображений с ID для удаления
 }
 
 interface HistoryItemProps {
@@ -55,6 +61,12 @@ export function HistoryItem({ record, onClick }: HistoryItemProps) {
               {record.time}
             </span>
           </div>
+          
+          {record.description && (
+            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+              {record.description}
+            </p>
+          )}
           
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             {record.mileage && (

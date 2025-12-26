@@ -12,6 +12,7 @@ export function useCars() {
   // Загружаем сохраненный selectedCarId из localStorage
   useEffect(() => {
     const savedCarId = localStorage.getItem('selectedCarId');
+    console.log('💾 Загруженный ID автомобиля из localStorage:', savedCarId);
     if (savedCarId) {
       setSelectedCarId(savedCarId);
     }
@@ -35,19 +36,24 @@ export function useCars() {
 
     setIsLoading(true);
     const result = await getCars();
+    console.log('🚗 Загруженные автомобили:', result);
     if (result && result.length > 0) {
       setCars(result);
       
       // Если нет выбранного авто, выбираем первый
       if (!selectedCarId) {
         const firstCarId = result[0].id;
+        console.log('✨ Выбираем первый автомобиль с ID:', firstCarId, 'тип:', typeof firstCarId);
         setSelectedCarId(firstCarId);
         localStorage.setItem('selectedCarId', firstCarId);
       } else {
+        console.log('🔎 Проверяем существование автомобиля с ID:', selectedCarId, 'тип:', typeof selectedCarId);
         // Проверяем, существует ли выбранный автомобиль
         const carExists = result.some((c: Car) => c.id === selectedCarId);
+        console.log('🔍 Автомобиль найден:', carExists);
         if (!carExists && result.length > 0) {
           const firstCarId = result[0].id;
+          console.log('⚠️ Автомобиль не найден, выбираем первый с ID:', firstCarId);
           setSelectedCarId(firstCarId);
           localStorage.setItem('selectedCarId', firstCarId);
         }

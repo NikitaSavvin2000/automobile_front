@@ -147,7 +147,6 @@ export function AddCarDialog({ isOpen, onClose, onAdd }: AddCarDialogProps) {
                   type="text"
                   placeholder="Toyota"
                   autoComplete="off"
-                  required
                   {...brandInputProps}
                 />
               </div>
@@ -158,7 +157,6 @@ export function AddCarDialog({ isOpen, onClose, onAdd }: AddCarDialogProps) {
                   type="text"
                   placeholder="Camry"
                   autoComplete="off"
-                  required
                   {...modelInputProps}
                 />
               </div>
@@ -169,7 +167,6 @@ export function AddCarDialog({ isOpen, onClose, onAdd }: AddCarDialogProps) {
                   type="text"
                   placeholder="2020"
                   autoComplete="off"
-                  required
                   {...yearInputProps}
                 />
               </div>
@@ -180,7 +177,6 @@ export function AddCarDialog({ isOpen, onClose, onAdd }: AddCarDialogProps) {
                   type="text"
                   placeholder="50000"
                   autoComplete="off"
-                  required
                   {...mileageInputProps}
                 />
               </div>

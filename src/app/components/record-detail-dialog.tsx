@@ -1,11 +1,17 @@
-import { X, Gauge, MapPin, Calendar, DollarSign, Edit2, Wrench, Package, ClipboardCheck, AlertCircle } from "lucide-react";
+import { X, Gauge, MapPin, Calendar, DollarSign, Edit2, Wrench, Package, ClipboardCheck, AlertCircle, Trash2 } from "lucide-react";
 import { HistoryRecord } from "./history-item";
+import { useState, useEffect } from "react";
+import { getCarRecordInfo } from "../../api/cars-records";
+import { PhotoViewer } from "./photo-viewer";
 
 interface RecordDetailDialogProps {
   record: HistoryRecord | null;
   isOpen: boolean;
   onClose: () => void;
   onEdit: (record: HistoryRecord) => void;
+  onDelete?: () => void;
+  carId?: string;
+  onDeleteImage?: (recordId: string, imageId: string) => Promise<boolean>;
 }
 
 const iconMap = {
@@ -29,11 +35,70 @@ const typeLabels = {
   inspection: 'Осмотр',
 };
 
-export function RecordDetailDialog({ record, isOpen, onClose, onEdit }: RecordDetailDialogProps) {
+export function RecordDetailDialog({ record, isOpen, onClose, onEdit, onDelete, carId, onDeleteImage }: RecordDetailDialogProps) {
+  const [detailedRecord, setDetailedRecord] = useState<HistoryRecord | null>(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [photoViewerOpen, setPhotoViewerOpen] = useState(false);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const [photoToDelete, setPhotoToDelete] = useState<{ index: number; imageId: string } | null>(null);
+
+  // Загружаем детальную информацию при открытии записи
+  useEffect(() => {
+    if (isOpen && record && carId) {
+      // Сразу устанавливаем record, чтобы не было задержки отображения
+      setDetailedRecord(record);
+      // Затем подгружаем актуальные данные с бэкенда
+      loadRecordDetails();
+    } else if (!isOpen) {
+      // Сбрасываем детальную запись при закрытии
+      setDetailedRecord(null);
+    }
+  }, [isOpen, record?.id, carId]);
+
+  const loadRecordDetails = async () => {
+    if (!record || !carId) return;
+
+    setIsLoadingDetails(true);
+    try {
+      console.log('🔍 Загрузка детальной информации для записи:', record.id);
+      const data = await getCarRecordInfo(carId, record.id);
+      
+      console.log('📡 Детальная информация получена:', data);
+      
+      if (data) {
+        // Преобразуем данные с бэкенда в формат HistoryRecord
+        const updatedRecord: HistoryRecord = {
+          ...record,
+          description: data.description || '',
+          photos: data.images?.map((img: any) => img.url) || [],
+          images: data.images?.map((img: any) => ({
+            id: img.id.toString(),
+            url: img.url
+          })) || [],
+        };
+        
+        console.log('✅ Обновленная запись с деталями:', updatedRecord);
+        setDetailedRecord(updatedRecord);
+      }
+    } catch (error) {
+      console.error('❌ Ошибка загрузки деталей записи:', error);
+      setDetailedRecord(record);
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  };
+
   if (!isOpen || !record) return null;
 
-  const Icon = iconMap[record.type];
-  const colors = iconColorMap[record.type];
+  // Используем детальную запись если загружена, иначе исходную
+  const displayRecord = detailedRecord || record;
+
+  console.log('📋 RecordDetailDialog - Отображаемая запись:', displayRecord);
+  console.log('📸 Фотографии:', displayRecord.photos);
+  console.log('📝 Описание:', displayRecord.description);
+
+  const Icon = iconMap[displayRecord.type];
+  const colors = iconColorMap[displayRecord.type];
 
   const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleDateString('ru-RU', {
@@ -43,14 +108,24 @@ export function RecordDetailDialog({ record, isOpen, onClose, onEdit }: RecordDe
     });
   };
 
+  const handleDeleteImage = async (imageId: string) => {
+    if (!record || !onDeleteImage) return;
+    
+    const success = await onDeleteImage(record.id, imageId);
+    if (success) {
+      // Перезагружаем детальную информацию
+      await loadRecordDetails();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center">
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
       
-      <div className="relative w-full max-w-md bg-background rounded-t-3xl sm:rounded-3xl shadow-xl animate-slide-up max-h-[90vh] flex flex-col">
+      <div className="relative w-full max-w-md bg-background rounded-3xl shadow-xl animate-slide-up max-h-[90vh] flex flex-col mx-4">
         {/* Заголовок */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-3">
@@ -86,10 +161,12 @@ export function RecordDetailDialog({ record, isOpen, onClose, onEdit }: RecordDe
           </div>
 
           {/* Что делалось */}
-          <div className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm">
-            <h3 className="text-sm text-muted-foreground mb-2">Что делалось</h3>
-            <p className="text-[15px] whitespace-pre-wrap">{record.description}</p>
-          </div>
+          {displayRecord.description && (
+            <div className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm">
+              <h3 className="text-sm text-muted-foreground mb-2">Что делалось</h3>
+              <p className="text-[15px] whitespace-pre-wrap">{displayRecord.description}</p>
+            </div>
+          )}
 
           {/* Пробег */}
           {record.mileage && (
@@ -137,17 +214,23 @@ export function RecordDetailDialog({ record, isOpen, onClose, onEdit }: RecordDe
           )}
 
           {/* Фотоматериалы */}
-          {record.photos && record.photos.length > 0 && (
+          {displayRecord.photos && displayRecord.photos.length > 0 && (
             <div className="bg-white dark:bg-card rounded-2xl p-4 shadow-sm">
-              <h3 className="text-sm text-muted-foreground mb-3">Фото чеков</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {record.photos.map((photo, index) => (
-                  <div key={index} className="aspect-square bg-secondary rounded-xl overflow-hidden">
+              <h3 className="text-sm text-muted-foreground mb-3">Фото</h3>
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                {displayRecord.photos.map((photo, index) => (
+                  <div 
+                    key={index} 
+                    className="flex-shrink-0 w-32 h-32 bg-secondary rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => {
+                      setSelectedPhotoIndex(index);
+                      setPhotoViewerOpen(true);
+                    }}
+                  >
                     <img
                       src={photo}
                       alt={`Чек ${index + 1}`}
-                      className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => window.open(photo, '_blank')}
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 ))}
@@ -159,7 +242,7 @@ export function RecordDetailDialog({ record, isOpen, onClose, onEdit }: RecordDe
         {/* Кнопки */}
         <div className="p-4 border-t border-border space-y-2">
           <button
-            onClick={() => onEdit(record)}
+            onClick={() => onEdit(displayRecord)}
             className="w-full flex items-center justify-center gap-2 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
           >
             <Edit2 className="w-5 h-5" />
@@ -173,6 +256,18 @@ export function RecordDetailDialog({ record, isOpen, onClose, onEdit }: RecordDe
           </button>
         </div>
       </div>
+
+      {/* Photo Viewer */}
+      {photoViewerOpen && displayRecord.photos && displayRecord.photos.length > 0 && (
+        <PhotoViewer
+          photos={displayRecord.photos}
+          images={displayRecord.images}
+          initialIndex={selectedPhotoIndex}
+          isOpen={photoViewerOpen}
+          onClose={() => setPhotoViewerOpen(false)}
+          onDeleteImage={onDeleteImage ? handleDeleteImage : undefined}
+        />
+      )}
     </div>
   );
 }

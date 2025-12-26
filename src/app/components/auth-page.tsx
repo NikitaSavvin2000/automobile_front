@@ -141,8 +141,8 @@ export function AuthPage({ onLogin, onChangePassword, setTokens }: AuthPageProps
   return (
     <div className="min-h-screen w-full max-w-md mx-auto bg-gradient-to-b from-primary/5 to-secondary/30 flex flex-col items-center justify-center p-4">
       {/* Логотип */}
-      <div className="mb-8 flex flex-col items-center">
-        <div className="w-24 h-24 bg-primary rounded-3xl flex items-center justify-center mb-4 shadow-lg">
+      <div className="mb-2 mt-20 flex flex-col items-center">
+        <div className="w-24 h-24 bg-primary rounded-3xl flex items-center justify-center mb-3 shadow-lg">
           <Car className="w-12 h-12 text-primary-foreground" />
         </div>
         <h1 className="text-2xl text-foreground">Авто История</h1>
@@ -233,7 +233,7 @@ export function AuthPage({ onLogin, onChangePassword, setTokens }: AuthPageProps
                     alert("Код отправлен на ваш Email");
                     setErrorMessage("");
                   } catch (err: any) {
-                    setErrorMessage(err.message); // выв��дим ошибку из бэкенда
+                    setErrorMessage(err.message); // вывдим ошибку из бэкенда
                   }
                 }}
                 className="w-full py-3.5 bg-yellow-200 text-yellow-900 rounded-xl hover:bg-yellow-300 transition-colors shadow-sm"

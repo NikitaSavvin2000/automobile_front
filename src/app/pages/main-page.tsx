@@ -14,6 +14,8 @@ import { useScroll } from '../hooks/use-scroll';
 import { CarManagementHeader } from '../components/car-management-header';
 import { CarSelectorModal } from '../components/car-selector-modal';
 import { EditCarModal } from '../components/edit-car-modal';
+import { getCarRecordInfo } from '../../api/cars-records';
+import { transformRecordData } from '../hooks/use-records';
 
 interface MainPageProps {
   userName: string;
@@ -24,10 +26,12 @@ interface MainPageProps {
   onSelectCar: (car: Car) => void;
   onAddCar: (car: Omit<Car, 'id'>) => void;
   onUpdateCar: (car: Car) => void;
-  onDeleteCar: (carId: string) => void;
+  onDeleteCar: (id: string) => void;
   onUpdateMileage: (mileage: string) => void;
-  onAddRecord: (record: NewRecord) => void;
-  onEditRecord: (record: HistoryRecord) => void;
+  onAddRecord: (record: NewRecord, carId: string) => Promise<void>;
+  onEditRecord: (record: HistoryRecord, carId: string, newPhotos?: File[]) => Promise<void>;
+  onDeleteRecord: (recordId: string, carId: string) => Promise<void>;
+  onDeleteRecordImage: (recordId: string, imageId: string) => Promise<boolean>;
   selectedRecord: HistoryRecord | null;
   onSelectRecord: (record: HistoryRecord | null) => void;
 }
@@ -45,6 +49,8 @@ export function MainPage({
   onUpdateMileage,
   onAddRecord,
   onEditRecord,
+  onDeleteRecord,
+  onDeleteRecordImage,
   selectedRecord,
   onSelectRecord,
 }: MainPageProps) {
@@ -78,10 +84,32 @@ export function MainPage({
     setIsEditRecordOpen(true);
   };
 
-  const handleEditRecord = (record: HistoryRecord) => {
-    onEditRecord(record);
+  const handleEditRecord = async (record: HistoryRecord, newPhotos?: File[]) => {
+    await onEditRecord(record, selectedCar?.id || '', newPhotos);
+    
+    // После сохранения загружаем обновленную запись из бэкенда
+    if (selectedCar?.id && record.id) {
+      const apiData = await getCarRecordInfo(selectedCar.id, record.id);
+      if (apiData) {
+        // Преобразуем данные из API в формат HistoryRecord
+        const updatedRecord = transformRecordData(apiData);
+        onSelectRecord(updatedRecord);
+      }
+    }
+    
+    // ВАЖНО: Сначала открываем детальный просмотр, ПОТОМ закрываем форму редактирования
+    // Это создает плавный переход без показа главного экрана
+    setIsRecordDetailOpen(true);
     setIsEditRecordOpen(false);
-    setIsRecordDetailOpen(false);
+  };
+
+  const handleDeleteRecord = async () => {
+    if (selectedRecord && selectedCar?.id) {
+      await onDeleteRecord(selectedRecord.id, selectedCar.id);
+      setIsRecordDetailOpen(false);
+      setIsEditRecordOpen(false);
+      onSelectRecord(null);
+    }
   };
 
   const handleEditCarFromSelector = (car: Car) => {
@@ -102,12 +130,20 @@ export function MainPage({
   };
 
   const filterByTab = (record: HistoryRecord) => {
+    // Вкладка "История" показывает все записи
+    if (activeTab === 'history') return true;
     if (activeTab === 'all') return true;
-    if (activeTab === 'history') return record.type === 'inspection';
     return false;
   };
 
   const filteredRecords = records.filter(filterByTab);
+  
+  console.log('📊 Статистика записей:', {
+    всегоЗаписей: records.length,
+    послеФильтрации: filteredRecords.length,
+    активнаяВкладка: activeTab,
+    записи: records.map(r => ({ id: r.id, type: r.type, title: r.title }))
+  });
 
   return (
     <div className="h-screen w-full max-w-md mx-auto bg-secondary/30 flex flex-col">
@@ -155,7 +191,7 @@ export function MainPage({
       {/* Список истории или экран "Скоро будет" или настройки */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pb-2">
         {showSettings ? (
-          <Settings userName={userName} onLogout={onLogout} />
+          <Settings onLogout={onLogout} />
         ) : showComingSoon ? (
           <ComingSoon type={activeTab === 'findService' ? 'service' : 'parts'} />
         ) : (
@@ -209,7 +245,7 @@ export function MainPage({
       <AddRecordDialog
         isOpen={isAddRecordOpen}
         onClose={() => setIsAddRecordOpen(false)}
-        onAdd={onAddRecord}
+        onAdd={(record) => onAddRecord(record, selectedCar?.id || '')}
       />
 
       <RecordDetailDialog
@@ -217,6 +253,9 @@ export function MainPage({
         isOpen={isRecordDetailOpen}
         onClose={() => setIsRecordDetailOpen(false)}
         onEdit={handleOpenEditRecord}
+        onDelete={handleDeleteRecord}
+        carId={selectedCar?.id}
+        onDeleteImage={onDeleteRecordImage}
       />
 
       <EditRecordDialog
@@ -224,6 +263,9 @@ export function MainPage({
         isOpen={isEditRecordOpen}
         onClose={() => setIsEditRecordOpen(false)}
         onSave={handleEditRecord}
+        onDeleteImage={onDeleteRecordImage}
+        onDelete={handleDeleteRecord}
+        carId={selectedCar?.id}
       />
 
       {/* Диалог подтверждения удаления */}

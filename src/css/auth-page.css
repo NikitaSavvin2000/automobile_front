@@ -14,3 +14,28 @@
 .shake {
   animation: shake 0.4s ease-in-out;
 }
+
+/* Фиксация фона полей ввода - всегда серый */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"] {
+  background-color: var(--secondary) !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus {
+  background-color: var(--secondary) !important;
+}
+
+/* Автозаполнение браузера - также серый фон */
+input[type="text"]:-webkit-autofill,
+input[type="email"]:-webkit-autofill,
+input[type="password"]:-webkit-autofill,
+input[type="number"]:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--secondary) inset !important;
+  box-shadow: 0 0 0 1000px var(--secondary) inset !important;
+  -webkit-text-fill-color: var(--foreground) !important;
+}

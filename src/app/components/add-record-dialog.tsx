@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Calendar, MapPin, FileText, Image, Upload } from "lucide-react";
+import "../../css/auth-page.css";
 
 export interface NewRecord {
   type: 'maintenance' | 'repair' | 'parts' | 'inspection';
@@ -35,10 +36,21 @@ export function AddRecordDialog({ isOpen, onClose, onAdd }: AddRecordDialogProps
   const [cost, setCost] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
 
+  const [errors, setErrors] = useState<{
+    title?: boolean;
+    description?: boolean;
+  }>({});
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title.trim() || !description.trim()) {
+    const newErrors: typeof errors = {};
+    
+    if (!title.trim()) newErrors.title = true;
+    if (!description.trim()) newErrors.description = true;
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -62,6 +74,7 @@ export function AddRecordDialog({ isOpen, onClose, onAdd }: AddRecordDialogProps
     setDate(new Date().toISOString().split('T')[0]);
     setCost("");
     setPhotos([]);
+    setErrors({});
     onClose();
   };
 
@@ -131,8 +144,9 @@ export function AddRecordDialog({ isOpen, onClose, onAdd }: AddRecordDialogProps
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Замена масла"
-              className="w-full px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
-              required
+              className={`w-full px-4 py-2.5 bg-white dark:bg-card border rounded-xl outline-none focus:ring-2 transition-all duration-300 ${
+                errors.title ? "border-red-400 ring-2 ring-red-400 shake" : "border-border focus:ring-primary/20"
+              }`}
             />
           </div>
 
@@ -146,8 +160,9 @@ export function AddRecordDialog({ isOpen, onClose, onAdd }: AddRecordDialogProps
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Подробное описание работ..."
               rows={3}
-              className="w-full px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-              required
+              className={`w-full px-4 py-2.5 bg-white dark:bg-card border rounded-xl outline-none focus:ring-2 resize-none transition-all duration-300 ${
+                errors.description ? "border-red-400 ring-2 ring-red-400 shake" : "border-border focus:ring-primary/20"
+              }`}
             />
           </div>
 
@@ -212,7 +227,7 @@ export function AddRecordDialog({ isOpen, onClose, onAdd }: AddRecordDialogProps
           <div>
             <label className="block text-sm text-muted-foreground mb-2">
               <Image className="w-4 h-4 inline mr-1" />
-              Фото чеков
+              Фото
             </label>
             <label className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-primary/5 border-2 border-dashed border-primary/20 rounded-xl cursor-pointer hover:bg-primary/10 transition-colors">
               <Upload className="w-5 h-5 text-primary" />

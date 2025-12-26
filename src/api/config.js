@@ -24,6 +24,15 @@ const API_ENDPOINTS = {
         list: `${BASE_URL}/posts/`,
         detail: (id) => `${BASE_URL}/posts/${id}/`,
     },
+    cars_records: {
+        create: `${BASE_URL}/cars_records/create`,
+        update: `${BASE_URL}/cars_records/update`,
+        delete: (id) => `${BASE_URL}/cars_records/delete/${id}`,
+        delete_image: (carId, imageId) => `${BASE_URL}/cars_records/delete_image/${carId}/${imageId}`,
+        list: (carId) => `${BASE_URL}/cars_records/list?car_id=${carId}`,
+        info: (car, recordId) => `${BASE_URL}/cars_records/info/${car}/${recordId}?car_id=${car}&car_record_id=${recordId}`,
+    }
 };
 
 export default API_ENDPOINTS;
+
