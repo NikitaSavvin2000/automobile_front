@@ -31,6 +31,9 @@ const API_ENDPOINTS = {
         delete_image: (carId, imageId) => `${BASE_URL}/cars_records/delete_image/${carId}/${imageId}`,
         list: (carId) => `${BASE_URL}/cars_records/list?car_id=${carId}`,
         info: (car, recordId) => `${BASE_URL}/cars_records/info/${car}/${recordId}?car_id=${car}&car_record_id=${recordId}`,
+    },
+    version: {
+        check: `${BASE_URL}/version/check`,
     }
 };
 

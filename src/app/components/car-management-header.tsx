@@ -47,19 +47,17 @@ export function CarManagementHeader({
   return (
     <div className="px-4 pt-4 pb-2">
       {/* Основная карточка */}
-      <div className="bg-white dark:bg-card rounded-[24px] shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-card rounded-[14px] shadow-sm overflow-hidden">
         
         {/* Подблок 1: Профиль автомобиля */}
         <button
           onClick={onOpenCarSelector}
-          className="w-full px-5 py-3 hover:bg-secondary/20 active:bg-secondary/30 transition-all active:scale-[0.995]"
+          className="w-full px-1 hover:bg-secondary/10 active:bg-secondary/10 transition-all active:scale-[0.895]"
         >
           <div className="flex flex-col items-center">
             {/* Верх: Крупный силуэт автомобиля - уменьшен на 20%, без отступов */}
-            <div className="w-full flex justify-center">
-              <div className="w-3/5 aspect-[1.2/1] max-w-[220px]">
-                <CarProfileIcon color={selectedCar.color || '#0088CC'} />
-              </div>
+              <div className="mt-[20px] w-3/4 aspect-[1/0.15] max-w-[920px]">
+                <CarProfileIcon color={selectedCar.color || '#0088CC'} className="w-full h-auto"/>
             </div>
 
             {/* Низ: Данные автомобиля - по центру */}

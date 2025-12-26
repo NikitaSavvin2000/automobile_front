@@ -5,10 +5,16 @@ import { AuthPageWrapper, MainPage } from './pages';
 import { useEffect } from 'react';
 import { getCarRecordInfo } from '../api/cars-records';
 import { transformRecordData } from './hooks/use-records';
+import { useVersionCheck } from "./hooks/use-version-check";
+import { UpdateRequiredModal } from "./components/update-required-modal";
+
+const APP_VERSION = "1.2.0";
 
 export default function App() {
   const { tokens, setTokens } = useAutoRefreshToken();
   const { isAuthenticated, userName, handleLogin, handleLogout, isInitialized } = useAuth();
+  const versionData = useVersionCheck(APP_VERSION);
+
   const {
     cars,
     selectedCar,
@@ -19,6 +25,7 @@ export default function App() {
     handleUpdateMileage,
     refreshCars,
   } = useCars();
+
   const {
     records,
     selectedRecord,
@@ -29,36 +36,24 @@ export default function App() {
     handleDeleteRecordImage,
   } = useRecords(selectedCar?.id || null);
 
-  // Логируем selectedCar для отладки
   useEffect(() => {
     console.log('🎯 Текущий выбранный автомобиль:', selectedCar);
     console.log('🎯 ID выбранного автомобиля:', selectedCar?.id, 'тип:', typeof selectedCar?.id);
   }, [selectedCar]);
 
-  // Загружаем данные после успешного логина
   useEffect(() => {
-    if (isAuthenticated && isInitialized) {
-      console.log('Пользователь авторизован, загружаем данные...');
-      // Обновляем список автомобилей
-      refreshCars();
-    }
+    if (isAuthenticated && isInitialized) refreshCars();
   }, [isAuthenticated, isInitialized]);
 
-  // Обертка для удаления изображения с обновлением selectedRecord
-  const handleDeleteRecordImageWithUpdate = async (recordId: string, imageId: string): Promise<boolean> => {
+  const handleDeleteRecordImageWithUpdate = async (recordId: string, imageId: string) => {
     const success = await handleDeleteRecordImage(recordId, imageId);
     if (success && selectedCar?.id && selectedRecord?.id) {
-      // Загружаем обновленную запись из бэкенда
       const apiData = await getCarRecordInfo(selectedCar.id, selectedRecord.id);
-      if (apiData) {
-        const updatedRecord = transformRecordData(apiData);
-        setSelectedRecord(updatedRecord);
-      }
+      if (apiData) setSelectedRecord(transformRecordData(apiData));
     }
     return success;
   };
 
-  // Показываем загрузку пока не инициализирована авторизация
   if (!isInitialized) {
     return (
       <ThemeProvider>
@@ -72,34 +67,33 @@ export default function App() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <ThemeProvider>
-        <AuthPageWrapper onLogin={handleLogin} setTokens={setTokens} />
-      </ThemeProvider>
-    );
-  }
-
   return (
     <ThemeProvider>
-      <MainPage
-        userName={userName}
-        cars={cars}
-        selectedCar={selectedCar}
-        records={records}
-        onLogout={handleLogout}
-        onSelectCar={handleSelectCar}
-        onAddCar={handleAddCar}
-        onUpdateCar={handleUpdateCar}
-        onDeleteCar={handleDeleteCar}
-        onUpdateMileage={handleUpdateMileage}
-        onAddRecord={handleAddRecord}
-        onEditRecord={handleEditRecord}
-        selectedRecord={selectedRecord}
-        onSelectRecord={setSelectedRecord}
-        onDeleteRecord={handleDeleteRecord}
-        onDeleteRecordImage={handleDeleteRecordImageWithUpdate}
-      />
+      {/* Модалка появляется сразу, даже до авторизации */}
+      {versionData && <UpdateRequiredModal data={versionData} />}
+
+      {!isAuthenticated ? (
+        <AuthPageWrapper onLogin={handleLogin} setTokens={setTokens} />
+      ) : (
+        <MainPage
+          userName={userName}
+          cars={cars}
+          selectedCar={selectedCar}
+          records={records}
+          onLogout={handleLogout}
+          onSelectCar={handleSelectCar}
+          onAddCar={handleAddCar}
+          onUpdateCar={handleUpdateCar}
+          onDeleteCar={handleDeleteCar}
+          onUpdateMileage={handleUpdateMileage}
+          onAddRecord={handleAddRecord}
+          onEditRecord={handleEditRecord}
+          selectedRecord={selectedRecord}
+          onSelectRecord={setSelectedRecord}
+          onDeleteRecord={handleDeleteRecord}
+          onDeleteRecordImage={handleDeleteRecordImageWithUpdate}
+        />
+      )}
     </ThemeProvider>
   );
 }

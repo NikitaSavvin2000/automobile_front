@@ -35,6 +35,8 @@ export function AddRecordDialog({ isOpen, onClose, onAdd }: AddRecordDialogProps
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [cost, setCost] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
 
   const [errors, setErrors] = useState<{
     title?: boolean;
@@ -176,7 +178,11 @@ export function AddRecordDialog({ isOpen, onClose, onAdd }: AddRecordDialogProps
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
+              className={
+                isIOS
+                  ? "w-full max-w-[90%] box-border px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
+                  : "w-full box-border px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
+              }
             />
           </div>
 

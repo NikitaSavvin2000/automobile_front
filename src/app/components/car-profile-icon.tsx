@@ -10,12 +10,9 @@ export function CarProfileIcon({
   return (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 1280 640"
+          viewBox="0 0 1280 1000"
           className={className}
         >
-        <metadata>
-        Created by potrace 1.15, written by Peter Selinger 2001-2017
-        </metadata>
             <g transform="translate(0,640) scale(0.1,-0.1)"
                fill={color}
                stroke="none">

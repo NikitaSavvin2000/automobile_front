@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { X, Calendar, MapPin, Image, Upload, Trash2 } from "lucide-react";
 import { HistoryRecord, ImageData } from "./history-item";
 import "../../css/auth-page.css";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface EditRecordDialogProps {
   record: HistoryRecord | null;
@@ -30,6 +32,8 @@ export function EditRecordDialog({ record, isOpen, onClose, onSave, onDeleteImag
   const [cost, setCost] = useState("");
   const [existingPhotos, setExistingPhotos] = useState<ImageData[]>([]);
   const [newPhotos, setNewPhotos] = useState<File[]>([]);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
 
   const [errors, setErrors] = useState<{
     title?: boolean;
@@ -229,14 +233,20 @@ export function EditRecordDialog({ record, isOpen, onClose, onSave, onDeleteImag
           {/* Дата */}
           <div>
             <label className="block text-sm text-muted-foreground mb-2">
+                <Calendar className="w-4 h-4 inline mr-1" />
               Дата
             </label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
-            />
+              className={
+                isIOS
+                  ? "w-full max-w-[90%] box-border px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
+                  : "w-full box-border px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20"
+              }
+              />
+
           </div>
 
           {/* Пробег */}
