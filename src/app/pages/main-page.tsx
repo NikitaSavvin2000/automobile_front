@@ -146,7 +146,7 @@ export function MainPage({
   });
 
   return (
-    <div className="h-screen w-full max-w-md mx-auto bg-secondary/30 flex flex-col">
+    <div className="h-screen w-full max-w-md mx-auto bg-secondary/60 flex flex-col">
       {/* Блок управления автомобилем */}
       {showCarBlock && (
         <CarManagementHeader
@@ -189,7 +189,7 @@ export function MainPage({
       )}
 
       {/* Список истории или экран "Скоро будет" или настройки */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pb-2">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pb-24">
         {showSettings ? (
           <Settings onLogout={onLogout} />
         ) : showComingSoon ? (

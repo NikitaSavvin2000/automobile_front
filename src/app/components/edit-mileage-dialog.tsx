@@ -28,7 +28,10 @@ const useShakeInput = (
     }
   }, [triggerError, resetError]);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value.replace(/\D/g, "");
+    setValue(newValue);
+  };
 
   const className = `w-full px-4 py-3 bg-secondary rounded-xl border-0 outline-none focus:ring-2 transition-all duration-300 ${
     triggerError || shake ? "ring-2 ring-red-400 shake" : "focus:ring-primary/20"
@@ -70,8 +73,8 @@ export function EditMileageDialog({ isOpen, currentMileage, onClose, onSave }: E
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-background rounded-t-3xl sm:rounded-3xl w-full max-w-md animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 duration-300">
-        <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between">
+      <div className="relative bg-background rounded-3xl w-full max-w-md animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-0 duration-300">
+        <div className="sticky top-0 bg-background border-b border-border px-6 py-4 flex items-center justify-between rounded-t-3xl">
           <h2>Изменить пробег</h2>
           <button onClick={onClose} className="p-2 hover:bg-secondary rounded-full transition-colors">
             <X className="w-5 h-5" />
@@ -85,7 +88,9 @@ export function EditMileageDialog({ isOpen, currentMileage, onClose, onSave }: E
             </label>
             <input
               id="mileage"
-              type="text"
+              type="tel"
+              pattern="\d*"
+              inputMode="numeric"
               placeholder="50000"
               autoComplete="off"
               autoFocus

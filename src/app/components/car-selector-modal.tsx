@@ -1,4 +1,4 @@
-import { X, Edit2, Trash2, Plus } from 'lucide-react';
+import { X, Edit2, Plus } from 'lucide-react';
 import { Car } from './add-car-dialog';
 import { CarProfileIcon } from './car-profile-icon';
 
@@ -9,7 +9,6 @@ interface CarSelectorModalProps {
   onClose: () => void;
   onSelect: (car: Car) => void;
   onEdit: (car: Car) => void;
-  onDelete: (car: Car) => void;
   onAdd: () => void;
 }
 
@@ -20,7 +19,6 @@ export function CarSelectorModal({
   onClose,
   onSelect,
   onEdit,
-  onDelete,
   onAdd,
 }: CarSelectorModalProps) {
   if (!isOpen) return null;
@@ -34,11 +32,6 @@ export function CarSelectorModal({
     e.stopPropagation();
     onEdit(car);
     onClose();
-  };
-
-  const handleDelete = (e: React.MouseEvent, car: Car) => {
-    e.stopPropagation();
-    onDelete(car);
   };
 
   const handleAdd = () => {
@@ -91,10 +84,10 @@ export function CarSelectorModal({
                     >
                       <button
                         onClick={() => handleSelect(car)}
-                        className="w-full p-5 pr-24"
+                        className="w-full p-5 pr-20"
                       >
                         <div className="flex items-center gap-5">
-                            <div className="flex-shrink-0 w-28 self-center">
+                          <div className="flex-shrink-0 w-28 self-center">
                             <CarProfileIcon
                               color={car.color || '#0088CC'}
                               className="w-full h-auto"
@@ -121,13 +114,6 @@ export function CarSelectorModal({
                           title="Редактировать"
                         >
                           <Edit2 className="w-5 h-5 text-primary" />
-                        </button>
-                        <button
-                          onClick={(e) => handleDelete(e, car)}
-                          className="p-2 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                          title="Удалить"
-                        >
-                          <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
                         </button>
                       </div>
                     </div>

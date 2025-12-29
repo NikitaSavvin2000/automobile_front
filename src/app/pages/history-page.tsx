@@ -27,10 +27,10 @@ export function HistoryPage({ records, searchQuery, onRecordClick }: HistoryPage
   }
 
   return (
-    <>
+    <div className="pb-4">
       {filteredRecords.map((record) => (
         <HistoryItem key={record.id} record={record} onClick={() => onRecordClick(record)} />
       ))}
-    </>
+    </div>
   );
 }

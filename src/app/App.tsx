@@ -67,33 +67,32 @@ export default function App() {
     );
   }
 
-  return (
-    <ThemeProvider>
-      {/* Модалка появляется сразу, даже до авторизации */}
-      {versionData && <UpdateRequiredModal data={versionData} />}
+return (
+      <ThemeProvider>
+        {versionData && <UpdateRequiredModal data={versionData} />}
 
-      {!isAuthenticated ? (
-        <AuthPageWrapper onLogin={handleLogin} setTokens={setTokens} />
-      ) : (
-        <MainPage
-          userName={userName}
-          cars={cars}
-          selectedCar={selectedCar}
-          records={records}
-          onLogout={handleLogout}
-          onSelectCar={handleSelectCar}
-          onAddCar={handleAddCar}
-          onUpdateCar={handleUpdateCar}
-          onDeleteCar={handleDeleteCar}
-          onUpdateMileage={handleUpdateMileage}
-          onAddRecord={handleAddRecord}
-          onEditRecord={handleEditRecord}
-          selectedRecord={selectedRecord}
-          onSelectRecord={setSelectedRecord}
-          onDeleteRecord={handleDeleteRecord}
-          onDeleteRecordImage={handleDeleteRecordImageWithUpdate}
-        />
-      )}
-    </ThemeProvider>
-  );
+        {!isAuthenticated ? (
+          <AuthPageWrapper onLogin={handleLogin} setTokens={setTokens} />
+        ) : (
+          <MainPage
+            userName={userName}
+            cars={cars}
+            selectedCar={selectedCar}
+            records={records}
+            onLogout={handleLogout}
+            onSelectCar={handleSelectCar}
+            onAddCar={handleAddCar}
+            onUpdateCar={handleUpdateCar}
+            onDeleteCar={handleDeleteCar}
+            onUpdateMileage={handleUpdateMileage}
+            onAddRecord={handleAddRecord}
+            onEditRecord={handleEditRecord}
+            selectedRecord={selectedRecord}
+            onSelectRecord={setSelectedRecord}
+            onDeleteRecord={handleDeleteRecord}
+            onDeleteRecordImage={handleDeleteRecordImageWithUpdate}
+          />
+        )}
+      </ThemeProvider>
+    );
 }
